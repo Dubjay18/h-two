@@ -7,7 +7,7 @@ import (
 )
 
 type UserRepository interface {
-	CreateUser(user *models.User) (*dto.CreateUserResponse, error)
+	CreateUser(user *models.User) (*dto.UserResponse, error)
 	GetUserByEmail(email string) (*models.User, error)
 }
 
@@ -15,12 +15,12 @@ type DefaultUserRepository struct {
 	db *gorm.DB
 }
 
-func (r *DefaultUserRepository) CreateUser(user *models.User) (*dto.CreateUserResponse, error) {
+func (r *DefaultUserRepository) CreateUser(user *models.User) (*dto.UserResponse, error) {
 	err := r.db.Create(&user).Error
 	if err != nil {
-		return &dto.CreateUserResponse{}, err
+		return &dto.UserResponse{}, err
 	}
-	return &dto.CreateUserResponse{
+	return &dto.UserResponse{
 		UserId:    user.UserId,
 		FirstName: user.FirstName,
 		LastName:  user.LastName,

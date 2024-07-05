@@ -74,7 +74,20 @@ func (a *DefaultAuthService) CreateUser(c *gin.Context, user *dto.CreateUserRequ
 			StatusCode: http.StatusInternalServerError,
 		}
 	}
-	return userResponse, nil
+	// Generate a JWT token
+	token, err := GenerateJWT(userResponse.UserId)
+	if err != nil {
+		return nil, &errors.ApiError{
+			Status:     errors.ValidationError,
+			Message:    "Registration unsuccessful",
+			StatusCode: http.StatusUnauthorized,
+		}
+	}
+
+	return &dto.CreateUserResponse{
+		AccessToken: token,
+		User:        *userResponse,
+	}, nil
 }
 
 func (a *DefaultAuthService) Login(c *gin.Context, user *dto.LoginRequest) (*dto.LoginResponse, *errors.ApiError) {

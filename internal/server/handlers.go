@@ -30,12 +30,11 @@ func (s *Server) RegisterHandler(c *gin.Context) {
 		return
 
 	}
-	response := make(map[string]interface{})
-	response["user"] = resp
+
 	c.JSON(http.StatusCreated, dto.ApiSuccessResponse{
 		Status:  "success",
 		Message: "Registration successful",
-		Data:    response,
+		Data:    resp,
 	})
 
 }

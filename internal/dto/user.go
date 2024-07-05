@@ -8,12 +8,16 @@ type CreateUserRequest struct {
 	Phone     string `json:"phone"binding:"required"`
 }
 
-type CreateUserResponse struct {
+type UserResponse struct {
 	UserId    string `json:"userId"`
 	FirstName string `json:"firstName"`
 	LastName  string `json:"lastName"`
 	Email     string `json:"email"`
 	Phone     string `json:"phone"`
+}
+type CreateUserResponse struct {
+	AccessToken string       `json:"accessToken"`
+	User        UserResponse `json:"user"`
 }
 
 type LoginRequest struct {
