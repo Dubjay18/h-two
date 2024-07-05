@@ -15,3 +15,19 @@ type CreateUserResponse struct {
 	Email     string `json:"email"`
 	Phone     string `json:"phone"`
 }
+
+type LoginRequest struct {
+	Email    string `json:"email"binding:"required"`
+	Password string `json:"password"binding:"required"`
+}
+
+type LoginResponse struct {
+	AccessToken string `json:"accessToken"`
+	User        struct {
+		UserId    string `json:"userId"`
+		FirstName string `json:"firstName"`
+		LastName  string `json:"lastName"`
+		Email     string `json:"email"`
+		Phone     string `json:"phone"`
+	}
+}

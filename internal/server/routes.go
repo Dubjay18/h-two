@@ -13,6 +13,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	authGroup := r.Group("/auth")
 	{
 		authGroup.POST("/register", s.RegisterHandler)
+		authGroup.POST("/login", s.LoginHandler)
 	}
 	return r
 }

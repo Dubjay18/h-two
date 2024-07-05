@@ -8,6 +8,7 @@ import (
 
 type UserRepository interface {
 	CreateUser(user *models.User) (*dto.CreateUserResponse, error)
+	GetUserByEmail(email string) (*models.User, error)
 }
 
 type DefaultUserRepository struct {
@@ -26,6 +27,16 @@ func (r *DefaultUserRepository) CreateUser(user *models.User) (*dto.CreateUserRe
 		Email:     user.Email,
 		Phone:     user.Phone,
 	}, nil
+}
+
+func (r *DefaultUserRepository) GetUserByEmail(email string) (*models.User, error) {
+	var user models.User
+	err := r.db.Where("email = ?", email).First(&user).Error
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
+
 }
 
 func NewUserRepository(db *gorm.DB) *DefaultUserRepository {
