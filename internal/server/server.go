@@ -2,6 +2,8 @@ package server
 
 import (
 	"fmt"
+	"h-two/internal/repository"
+	"h-two/internal/services"
 	"net/http"
 	"os"
 	"strconv"
@@ -13,17 +15,22 @@ import (
 )
 
 type Server struct {
-	port int
-
-	db *database.DbService
+	port        int
+	AuthService services.AuthService
+	Db          *database.DbService
 }
 
 func NewServer() *http.Server {
 	port, _ := strconv.Atoi(os.Getenv("PORT"))
-	NewServer := &Server{
-		port: port,
+	dbInstance := database.New()
 
-		db: database.New(),
+	userRepo := repository.NewUserRepository(dbInstance.Db) // Pass the dbInstance to the UserRepository
+	authService := services.NewAuthService(userRepo)        // Pass the UserRepository to the AuthService
+
+	NewServer := &Server{
+		port:        port,
+		AuthService: authService,
+		Db:          database.New(),
 	}
 
 	// Declare Server config

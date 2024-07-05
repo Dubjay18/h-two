@@ -13,7 +13,7 @@ import (
 // Service represents a service that interacts with a database.
 
 type DbService struct {
-	db *gorm.DB
+	Db *gorm.DB
 }
 
 var (
@@ -31,13 +31,17 @@ func New() *DbService {
 	if dbInstance != nil {
 		return dbInstance
 	}
-	dsn := fmt.Sprintf("postgresql://d4g40h:%s@us-east-1.sql.xata.sh/h-two:main?sslmode=require", xataApiKey)
+	dsn := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=require", username, password, host, port, database)
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatal(err)
 	}
 	dbInstance = &DbService{
-		db: db,
+		Db: db,
 	}
 	return dbInstance
+}
+
+func EnableUuidExtension(db *gorm.DB) error {
+	return db.Exec("CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\";").Error
 }
