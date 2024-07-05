@@ -10,7 +10,7 @@ const (
 type ApiError struct {
 	Status     string `json:"status"`
 	Message    string `json:"message"`
-	StatusCode int    `json:"status_code"`
+	StatusCode int    `json:"statusCode"`
 }
 
 type FieldError struct {
