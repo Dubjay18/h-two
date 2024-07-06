@@ -21,7 +21,7 @@ func (s *Server) RegisterHandler(c *gin.Context) {
 			// Translate each error one at a time
 			res = append(res, errors.FieldError{Field: fieldName, Message: errorMessage})
 		}
-		c.JSON(http.StatusBadRequest, gin.H{"errors": res})
+		c.JSON(http.StatusUnprocessableEntity, gin.H{"errors": res})
 		return
 	}
 	resp, err := s.AuthService.CreateUserAndOrganization(c, req)
@@ -51,7 +51,7 @@ func (s *Server) LoginHandler(c *gin.Context) {
 			// Translate each error one at a time
 			res = append(res, errors.FieldError{Field: fieldName, Message: errorMessage})
 		}
-		c.JSON(http.StatusBadRequest, gin.H{"errors": res})
+		c.JSON(http.StatusUnprocessableEntity, gin.H{"errors": res})
 		return
 	}
 	resp, err := s.AuthService.Login(c, req)

@@ -158,7 +158,7 @@ func (s *DefaultAuthService) CreateUserAndOrganization(c *gin.Context, req *dto.
 		return nil, err
 	}
 
-	err = s.orgService.CreateOrganizationByFirstName(req.FirstName)
+	err = s.orgService.CreateOrganizationByFirstName(req.FirstName, resp.User.UserId)
 	if err != nil {
 		tx.Rollback()
 		return nil, &errors.ApiError{

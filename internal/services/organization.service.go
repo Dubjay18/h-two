@@ -8,17 +8,20 @@ import (
 )
 
 type OrganizationService interface {
-	CreateOrganizationByFirstName(name string) *errors.ApiError
+	CreateOrganizationByFirstName(name string, userId string) *errors.ApiError
 }
 
 type DefaultOrganizationService struct {
 	repo *repository.DefaultOrganizationRepository
 }
 
-func (s *DefaultOrganizationService) CreateOrganizationByFirstName(name string) *errors.ApiError {
+func (s *DefaultOrganizationService) CreateOrganizationByFirstName(name string, userId string) *errors.ApiError {
+
 	org := &models.Organization{
-		Name: fmt.Sprintf("%s's Organization", name),
+		Name:  fmt.Sprintf("%s's Organization", name),
+		Owner: userId,
 	}
+
 	err := s.repo.CreateOrganization(org)
 	if err != nil {
 		return &errors.ApiError{
