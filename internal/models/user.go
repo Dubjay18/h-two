@@ -13,5 +13,5 @@ type User struct {
 }
 
 func Migrate(db *gorm.DB) error {
-	return db.AutoMigrate(&User{})
+	return db.AutoMigrate(&User{}, &Organization{})
 }

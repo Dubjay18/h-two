@@ -25,10 +25,10 @@ func NewServer() *http.Server {
 	port, _ := strconv.Atoi(os.Getenv("PORT"))
 	dbInstance := database.New()
 
-	userRepo := repository.NewUserRepository(dbInstance.Db) // Pass the dbInstance to the UserRepository
-	authService := services.NewAuthService(userRepo)        // Pass the UserRepository to the AuthService
 	organizationRep := repository.NewOrganizationRepository(dbInstance.Db)
 	organizationService := services.NewOrganizationService(organizationRep)
+	userRepo := repository.NewUserRepository(dbInstance.Db)               // Pass the dbInstance to the UserRepository
+	authService := services.NewAuthService(userRepo, organizationService) // Pass the UserRepository to the AuthService
 
 	NewServer := &Server{
 		port:                port,

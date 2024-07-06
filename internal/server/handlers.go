@@ -24,7 +24,7 @@ func (s *Server) RegisterHandler(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"errors": res})
 		return
 	}
-	resp, err := s.AuthService.CreateUser(c, req)
+	resp, err := s.AuthService.CreateUserAndOrganization(c, req)
 	if err != nil {
 		c.JSON(err.StatusCode, err)
 		return

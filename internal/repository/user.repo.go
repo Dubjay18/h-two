@@ -9,6 +9,7 @@ import (
 type UserRepository interface {
 	CreateUser(user *models.User) (*dto.UserResponse, error)
 	GetUserByEmail(email string) (*models.User, error)
+	Begin() *gorm.DB
 }
 
 type DefaultUserRepository struct {
@@ -37,6 +38,9 @@ func (r *DefaultUserRepository) GetUserByEmail(email string) (*models.User, erro
 	}
 	return &user, nil
 
+}
+func (r *DefaultUserRepository) Begin() *gorm.DB {
+	return r.db.Begin()
 }
 
 func NewUserRepository(db *gorm.DB) *DefaultUserRepository {

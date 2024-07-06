@@ -16,10 +16,12 @@ import (
 type AuthService interface {
 	CreateUser(c *gin.Context, user *dto.CreateUserRequest) (*dto.CreateUserResponse, *errors.ApiError)
 	Login(c *gin.Context, user *dto.LoginRequest) (*dto.LoginResponse, *errors.ApiError)
+	CreateUserAndOrganization(c *gin.Context, req *dto.CreateUserRequest) (*dto.CreateUserResponse, *errors.ApiError)
 }
 
 type DefaultAuthService struct {
-	repo *repository.DefaultUserRepository
+	repo       *repository.DefaultUserRepository
+	orgService OrganizationService
 }
 
 func hashPassword(password string) (string, error) {
@@ -49,7 +51,7 @@ func GenerateJWT(userId string) (string, error) {
 	return tokenString, nil
 }
 
-func (a *DefaultAuthService) CreateUser(c *gin.Context, user *dto.CreateUserRequest) (*dto.CreateUserResponse, *errors.ApiError) {
+func (s *DefaultAuthService) CreateUser(c *gin.Context, user *dto.CreateUserRequest) (*dto.CreateUserResponse, *errors.ApiError) {
 	// Hash the user's password
 	hash, err := hashPassword(user.Password)
 	if err != nil {
@@ -62,10 +64,11 @@ func (a *DefaultAuthService) CreateUser(c *gin.Context, user *dto.CreateUserRequ
 	user.Password = hash
 
 	// Save the user to the database
-	userResponse, dbErr := a.repo.CreateUser(&models.User{FirstName: user.FirstName,
+	userResponse, dbErr := s.repo.CreateUser(&models.User{FirstName: user.FirstName,
 		Email:    user.Email,
 		Password: user.Password,
 		LastName: user.LastName,
+		Phone:    user.Phone,
 	})
 	if dbErr != nil {
 		return nil, &errors.ApiError{
@@ -90,10 +93,10 @@ func (a *DefaultAuthService) CreateUser(c *gin.Context, user *dto.CreateUserRequ
 	}, nil
 }
 
-func (a *DefaultAuthService) Login(c *gin.Context, user *dto.LoginRequest) (*dto.LoginResponse, *errors.ApiError) {
+func (s *DefaultAuthService) Login(c *gin.Context, user *dto.LoginRequest) (*dto.LoginResponse, *errors.ApiError) {
 
 	// Get the user from the database
-	u, err := a.repo.GetUserByEmail(user.Email)
+	u, err := s.repo.GetUserByEmail(user.Email)
 	if err != nil {
 		return nil, &errors.ApiError{
 			Status:     errors.ValidationError,
@@ -135,6 +138,40 @@ func (a *DefaultAuthService) Login(c *gin.Context, user *dto.LoginRequest) (*dto
 		},
 	}, nil
 }
-func NewAuthService(repo *repository.DefaultUserRepository) AuthService {
-	return &DefaultAuthService{repo: repo}
+
+func (s *DefaultAuthService) CreateUserAndOrganization(c *gin.Context, req *dto.CreateUserRequest) (*dto.CreateUserResponse, *errors.ApiError) {
+	// Start a new transaction
+	tx := s.repo.Begin()
+
+	// Check for errors starting the transaction
+	if tx.Error != nil {
+		return nil, &errors.ApiError{
+			Status:     "error",
+			Message:    errors.InternalServerError,
+			StatusCode: http.StatusInternalServerError,
+		}
+	}
+
+	resp, err := s.CreateUser(c, req)
+	if err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
+	err = s.orgService.CreateOrganizationByFirstName(req.FirstName)
+	if err != nil {
+		tx.Rollback()
+		return nil, &errors.ApiError{
+			Status:     "error",
+			Message:    errors.InternalServerError,
+			StatusCode: http.StatusInternalServerError,
+		}
+	}
+
+	tx.Commit()
+	return resp, nil
+}
+
+func NewAuthService(repo *repository.DefaultUserRepository, orgService OrganizationService) AuthService {
+	return &DefaultAuthService{repo: repo, orgService: orgService}
 }

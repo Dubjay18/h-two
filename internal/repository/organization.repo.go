@@ -7,6 +7,7 @@ import (
 
 type OrganizationRepository interface {
 	CreateOrganization(org *models.Organization) error
+	Begin() *gorm.DB
 }
 
 type DefaultOrganizationRepository struct {
@@ -19,6 +20,9 @@ func (r *DefaultOrganizationRepository) CreateOrganization(org *models.Organizat
 		return err
 	}
 	return nil
+}
+func (r *DefaultOrganizationRepository) Begin() *gorm.DB {
+	return r.db.Begin()
 }
 
 func NewOrganizationRepository(db *gorm.DB) *DefaultOrganizationRepository {
