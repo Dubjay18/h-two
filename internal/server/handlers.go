@@ -66,3 +66,19 @@ func (s *Server) LoginHandler(c *gin.Context) {
 		Data:    resp,
 	})
 }
+
+func (s *Server) GetUserDetailsHandler(c *gin.Context) {
+
+	// Get the user ID from the context
+	userID := c.Params.ByName("id")
+	user, err := s.UserService.GetUserDetails(c, userID)
+	if err != nil {
+		c.JSON(err.StatusCode, err)
+		return
+	}
+	c.JSON(http.StatusOK, dto.ApiSuccessResponse{
+		Status:  "success",
+		Message: "User details retrieved successfully",
+		Data:    user,
+	})
+}
