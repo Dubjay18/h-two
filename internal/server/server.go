@@ -15,9 +15,10 @@ import (
 )
 
 type Server struct {
-	port        int
-	AuthService services.AuthService
-	Db          *database.DbService
+	port                int
+	AuthService         services.AuthService
+	OrganizationService services.OrganizationService
+	Db                  *database.DbService
 }
 
 func NewServer() *http.Server {
@@ -26,11 +27,14 @@ func NewServer() *http.Server {
 
 	userRepo := repository.NewUserRepository(dbInstance.Db) // Pass the dbInstance to the UserRepository
 	authService := services.NewAuthService(userRepo)        // Pass the UserRepository to the AuthService
+	organizationRep := repository.NewOrganizationRepository(dbInstance.Db)
+	organizationService := services.NewOrganizationService(organizationRep)
 
 	NewServer := &Server{
-		port:        port,
-		AuthService: authService,
-		Db:          database.New(),
+		port:                port,
+		AuthService:         authService,
+		OrganizationService: organizationService,
+		Db:                  database.New(),
 	}
 
 	// Declare Server config
