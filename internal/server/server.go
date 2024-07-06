@@ -17,6 +17,7 @@ import (
 type Server struct {
 	port                int
 	AuthService         services.AuthService
+	UserService         services.UserService
 	OrganizationService services.OrganizationService
 	Db                  *database.DbService
 }
@@ -29,10 +30,12 @@ func NewServer() *http.Server {
 	organizationService := services.NewOrganizationService(organizationRep)
 	userRepo := repository.NewUserRepository(dbInstance.Db)               // Pass the dbInstance to the UserRepository
 	authService := services.NewAuthService(userRepo, organizationService) // Pass the UserRepository to the AuthService
+	userService := services.NewUserService(userRepo)                      // Pass the UserRepository to the UserService
 
 	NewServer := &Server{
 		port:                port,
 		AuthService:         authService,
+		UserService:         userService,
 		OrganizationService: organizationService,
 		Db:                  database.New(),
 	}

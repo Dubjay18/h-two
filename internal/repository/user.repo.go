@@ -9,6 +9,7 @@ import (
 type UserRepository interface {
 	CreateUser(user *models.User) (*dto.UserResponse, error)
 	GetUserByEmail(email string) (*models.User, error)
+	GetUserById(userId string) (*models.User, error)
 	Begin() *gorm.DB
 }
 
@@ -39,6 +40,17 @@ func (r *DefaultUserRepository) GetUserByEmail(email string) (*models.User, erro
 	return &user, nil
 
 }
+
+func (r *DefaultUserRepository) GetUserById(userId string) (*models.User, error) {
+	var user models.User
+	err := r.db.Where("user_id = ?", userId).First(&user).Error
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
+
+}
+
 func (r *DefaultUserRepository) Begin() *gorm.DB {
 	return r.db.Begin()
 }
