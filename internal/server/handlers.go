@@ -82,3 +82,17 @@ func (s *Server) GetUserDetailsHandler(c *gin.Context) {
 		Data:    user,
 	})
 }
+func (s *Server) GetOrganizationsHandler(c *gin.Context) {
+	// Get the user ID from the context
+	userID := c.GetString("userId")
+	orgs, err := s.OrganizationService.GetUserOrganizations(userID)
+	if err != nil {
+		c.JSON(err.StatusCode, err)
+		return
+	}
+	c.JSON(http.StatusOK, dto.ApiSuccessResponse{
+		Status:  "success",
+		Message: "Organizations retrieved successfully",
+		Data:    orgs,
+	})
+}

@@ -7,6 +7,7 @@ import (
 
 type OrganizationRepository interface {
 	CreateOrganization(org *models.Organization) error
+	GetOrganizationsByUser(userId string) ([]*models.Organization, error)
 	Begin() *gorm.DB
 }
 
@@ -40,6 +41,17 @@ func (r *DefaultOrganizationRepository) CreateOrganization(org *models.Organizat
 	// Commit the transaction
 	tx.Commit()
 	return nil
+}
+func (r *DefaultOrganizationRepository) GetOrganizationsByUser(userId string) ([]*models.Organization, error) {
+	var orgs []*models.Organization
+	err := r.db.Table("organizations").
+		Joins("JOIN user_organizations ON organizations.org_id = user_organizations.org_id").
+		Where("user_organizations.user_id = ?", userId).
+		Find(&orgs).Error
+	if err != nil {
+		return nil, err
+	}
+	return orgs, nil
 }
 func (r *DefaultOrganizationRepository) Begin() *gorm.DB {
 	return r.db.Begin()

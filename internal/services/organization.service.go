@@ -2,6 +2,7 @@ package services
 
 import (
 	"fmt"
+	"h-two/internal/dto"
 	"h-two/internal/errors"
 	"h-two/internal/models"
 	"h-two/internal/repository"
@@ -9,6 +10,7 @@ import (
 
 type OrganizationService interface {
 	CreateOrganizationByFirstName(name string, userId string) *errors.ApiError
+	GetUserOrganizations(userId string) ([]*dto.GetOrganizationResponse, *errors.ApiError)
 }
 
 type DefaultOrganizationService struct {
@@ -31,6 +33,26 @@ func (s *DefaultOrganizationService) CreateOrganizationByFirstName(name string, 
 		}
 	}
 	return nil
+}
+
+func (s *DefaultOrganizationService) GetUserOrganizations(userId string) ([]*dto.GetOrganizationResponse, *errors.ApiError) {
+	orgs, err := s.repo.GetOrganizationsByUser(userId)
+	if err != nil {
+		return nil, &errors.ApiError{
+			Message:    "Failed to get organizations",
+			StatusCode: 500,
+			Status:     errors.InternalServerError,
+		}
+	}
+	var response []*dto.GetOrganizationResponse
+	for _, org := range orgs {
+		response = append(response, &dto.GetOrganizationResponse{
+			OrgId:       org.OrgId,
+			Name:        org.Name,
+			Description: org.Description,
+		})
+	}
+	return response, nil
 }
 
 func NewOrganizationService(repo *repository.DefaultOrganizationRepository) *DefaultOrganizationService {
