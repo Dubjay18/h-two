@@ -19,6 +19,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 		apiGroup.GET("/users/:id", middleware.AuthMiddleware, s.GetUserDetailsHandler)
 		apiGroup.GET("/organisations", middleware.AuthMiddleware, s.GetOrganizationsHandler)
 		apiGroup.GET("/organisations/:orgId", middleware.AuthMiddleware, s.GetOrganizationHandler)
+		apiGroup.POST("/organisations", middleware.AuthMiddleware, s.CreateOrganizationHandler)
 	}
 
 	return r

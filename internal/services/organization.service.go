@@ -12,6 +12,7 @@ type OrganizationService interface {
 	CreateOrganizationByFirstName(name string, userId string) *errors.ApiError
 	GetUserOrganizations(userId string) ([]*dto.GetOrganizationResponse, *errors.ApiError)
 	GetOrganizationById(userId string, orgId string) (*dto.GetOrganizationResponse, *errors.ApiError)
+	CreateOrganization(userId string, req *dto.CreateOrganizationRequest) (*dto.GetOrganizationResponse, *errors.ApiError)
 }
 
 type DefaultOrganizationService struct {
@@ -62,6 +63,27 @@ func (s *DefaultOrganizationService) GetOrganizationById(userId string, orgId st
 			Message:    "Organization not found",
 			StatusCode: 404,
 			Status:     "Not Found",
+		}
+	}
+	return &dto.GetOrganizationResponse{
+		OrgId:       org.OrgId,
+		Name:        org.Name,
+		Description: org.Description,
+	}, nil
+}
+
+func (s *DefaultOrganizationService) CreateOrganization(userId string, req *dto.CreateOrganizationRequest) (*dto.GetOrganizationResponse, *errors.ApiError) {
+	org := &models.Organization{
+		Name:        req.Name,
+		Description: req.Description,
+		Owner:       userId,
+	}
+	err := s.repo.CreateOrganization(org)
+	if err != nil {
+		return nil, &errors.ApiError{
+			Message:    "Failed to create organization",
+			StatusCode: 500,
+			Status:     errors.InternalServerError,
 		}
 	}
 	return &dto.GetOrganizationResponse{
