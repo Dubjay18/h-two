@@ -6,6 +6,7 @@ import (
 	"h-two/internal/errors"
 	"h-two/internal/models"
 	"h-two/internal/repository"
+	"net/http"
 )
 
 type OrganizationService interface {
@@ -13,6 +14,7 @@ type OrganizationService interface {
 	GetUserOrganizations(userId string) ([]*dto.GetOrganizationResponse, *errors.ApiError)
 	GetOrganizationById(userId string, orgId string) (*dto.GetOrganizationResponse, *errors.ApiError)
 	CreateOrganization(userId string, req *dto.CreateOrganizationRequest) (*dto.GetOrganizationResponse, *errors.ApiError)
+	AddUserToOrganization(orgId string, userId string) *errors.ApiError
 }
 
 type DefaultOrganizationService struct {
@@ -29,9 +31,9 @@ func (s *DefaultOrganizationService) CreateOrganizationByFirstName(name string, 
 	err := s.repo.CreateOrganization(org)
 	if err != nil {
 		return &errors.ApiError{
-			Message:    "Failed to create organization",
-			StatusCode: 500,
-			Status:     errors.InternalServerError,
+			Message:    "Client Error",
+			StatusCode: http.StatusBadRequest,
+			Status:     errors.ValidationError,
 		}
 	}
 	return nil
@@ -91,6 +93,17 @@ func (s *DefaultOrganizationService) CreateOrganization(userId string, req *dto.
 		Name:        org.Name,
 		Description: org.Description,
 	}, nil
+}
+func (s *DefaultOrganizationService) AddUserToOrganization(orgId string, userId string) *errors.ApiError {
+	err := s.repo.AddUserToOrganization(orgId, userId)
+	if err != nil {
+		return &errors.ApiError{
+			Message:    "Client error",
+			StatusCode: http.StatusBadRequest,
+			Status:     errors.ValidationError,
+		}
+	}
+	return nil
 }
 
 func NewOrganizationService(repo *repository.DefaultOrganizationRepository) *DefaultOrganizationService {

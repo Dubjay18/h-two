@@ -10,3 +10,7 @@ type CreateOrganizationRequest struct {
 	Name        string `json:"name" binding:"required"`
 	Description string `json:"description" binding:"required"`
 }
+
+type AddUserToOrganizationRequest struct {
+	UserId string `json:"userId" binding:"required"`
+}

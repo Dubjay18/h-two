@@ -119,3 +119,23 @@ func (s *Server) CreateOrganizationHandler(c *gin.Context) {
 	})
 
 }
+
+func (s *Server) AddUserToOrganizationHandler(c *gin.Context) {
+	orgID := c.Param("orgId")
+	var req dto.AddUserToOrganizationRequest
+	perr := helpers.ParseRequestBody(c, &req)
+	if perr != nil {
+		log.Println(perr)
+		return
+	}
+	err := s.OrganizationService.AddUserToOrganization(req.UserId, orgID)
+	if err != nil {
+		c.JSON(err.StatusCode, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, dto.ApiSuccessResponse{
+		Status:  "success",
+		Message: "User added to organization successfully",
+	})
+}

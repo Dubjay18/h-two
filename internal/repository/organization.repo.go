@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"fmt"
 	"gorm.io/gorm"
 	"h-two/internal/models"
 )
@@ -9,6 +10,7 @@ type OrganizationRepository interface {
 	CreateOrganization(org *models.Organization) error
 	GetOrganizationsByUser(userId string) ([]*models.Organization, error)
 	GetOrganizationById(userId string, orgId string) (*models.Organization, error)
+	AddUserToOrganization(orgId string, userId string) error
 	Begin() *gorm.DB
 }
 
@@ -67,6 +69,30 @@ func (r *DefaultOrganizationRepository) GetOrganizationById(userId string, orgId
 	return &org, nil
 }
 
+func (r *DefaultOrganizationRepository) AddUserToOrganization(orgId string, userId string) error {
+	// Check if the user already belongs to the organization
+	var userOrg models.UserOrganization
+	if err := r.db.Where("org_id = ? AND user_id = ?", orgId, userId).First(&userOrg).Error; err != nil {
+		if err != gorm.ErrRecordNotFound {
+			// An error occurred while trying to fetch the record
+			return err
+		}
+	} else {
+		// The user already belongs to the organization
+		return fmt.Errorf("user %s already belongs to organization %s", userId, orgId)
+	}
+
+	// The user does not belong to the organization, so add them
+	userOrg = models.UserOrganization{
+		OrgId:  orgId,
+		UserId: userId,
+	}
+	if err := r.db.Create(&userOrg).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
 func (r *DefaultOrganizationRepository) Begin() *gorm.DB {
 	return r.db.Begin()
 }
