@@ -11,6 +11,7 @@ import (
 type OrganizationService interface {
 	CreateOrganizationByFirstName(name string, userId string) *errors.ApiError
 	GetUserOrganizations(userId string) ([]*dto.GetOrganizationResponse, *errors.ApiError)
+	GetOrganizationById(userId string, orgId string) (*dto.GetOrganizationResponse, *errors.ApiError)
 }
 
 type DefaultOrganizationService struct {
@@ -53,6 +54,21 @@ func (s *DefaultOrganizationService) GetUserOrganizations(userId string) ([]*dto
 		})
 	}
 	return response, nil
+}
+func (s *DefaultOrganizationService) GetOrganizationById(userId string, orgId string) (*dto.GetOrganizationResponse, *errors.ApiError) {
+	org, err := s.repo.GetOrganizationById(userId, orgId)
+	if err != nil {
+		return nil, &errors.ApiError{
+			Message:    "Organization not found",
+			StatusCode: 404,
+			Status:     "Not Found",
+		}
+	}
+	return &dto.GetOrganizationResponse{
+		OrgId:       org.OrgId,
+		Name:        org.Name,
+		Description: org.Description,
+	}, nil
 }
 
 func NewOrganizationService(repo *repository.DefaultOrganizationRepository) *DefaultOrganizationService {
