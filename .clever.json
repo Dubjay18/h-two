@@ -1,0 +1,12 @@
+{
+  "apps": [
+    {
+      "app_id": "app_45cd0021-c131-41af-8e55-3f43859690fd",
+      "org_id": "user_142fde8c-9ca1-4d80-9da2-e24f29289412",
+      "deploy_url": "https://push-n3-par-clevercloud-customers.services.clever-cloud.com/app_45cd0021-c131-41af-8e55-3f43859690fd.git",
+      "git_ssh_url": "git+ssh://git@push-n3-par-clevercloud-customers.services.clever-cloud.com/app_45cd0021-c131-41af-8e55-3f43859690fd.git",
+      "name": "h-two",
+      "alias": "h-two"
+    }
+  ]
+}
