@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"h-two/internal/server"
 )
 
@@ -15,6 +16,7 @@ func main() {
 	//if err != nil {
 	//	log.Fatalf("Failed to migrate database: %v", err)
 	//}
+	gin.SetMode(gin.ReleaseMode)
 	mainServer := server.NewServer()
 
 	err := mainServer.ListenAndServe()
