@@ -11,11 +11,24 @@ type OrganizationRepository interface {
 	GetOrganizationsByUser(userId string) ([]*models.Organization, error)
 	GetOrganizationById(userId string, orgId string) (*models.Organization, error)
 	AddUserToOrganization(orgId string, userId string) error
+	IsUserInOrganization(userId string, orgId string) (bool, error)
 	Begin() *gorm.DB
 }
 
 type DefaultOrganizationRepository struct {
 	db *gorm.DB
+}
+
+func (r *DefaultOrganizationRepository) IsUserInOrganization(userId string, orgId string) (bool, error) {
+	var userOrg models.UserOrganization
+	if err := r.db.Where("org_id = ? AND user_id = ?", orgId, userId).First(&userOrg).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return false, nil
+		}
+		return false, err
+	}
+	return true, nil
+
 }
 
 func (r *DefaultOrganizationRepository) CreateOrganization(org *models.Organization) error {
@@ -58,6 +71,7 @@ func (r *DefaultOrganizationRepository) GetOrganizationsByUser(userId string) ([
 }
 
 func (r *DefaultOrganizationRepository) GetOrganizationById(userId string, orgId string) (*models.Organization, error) {
+
 	var org models.Organization
 	err := r.db.Table("organizations").
 		Joins("JOIN user_organizations ON organizations.org_id = user_organizations.org_id").
@@ -93,6 +107,7 @@ func (r *DefaultOrganizationRepository) AddUserToOrganization(orgId string, user
 
 	return nil
 }
+
 func (r *DefaultOrganizationRepository) Begin() *gorm.DB {
 	return r.db.Begin()
 }

@@ -15,7 +15,7 @@ import (
 )
 
 type Server struct {
-	port                int
+	Port                int
 	AuthService         services.AuthService
 	UserService         services.UserService
 	OrganizationService services.OrganizationService
@@ -33,7 +33,7 @@ func NewServer() *http.Server {
 	userService := services.NewUserService(userRepo)                      // Pass the UserRepository to the UserService
 
 	NewServer := &Server{
-		port:                port,
+		Port:                port,
 		AuthService:         authService,
 		UserService:         userService,
 		OrganizationService: organizationService,
@@ -42,7 +42,7 @@ func NewServer() *http.Server {
 
 	// Declare Server config
 	server := &http.Server{
-		Addr:         fmt.Sprintf(":%d", NewServer.port),
+		Addr:         fmt.Sprintf(":%d", NewServer.Port),
 		Handler:      NewServer.RegisterRoutes(),
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  10 * time.Second,

@@ -13,7 +13,7 @@ type UserService interface {
 }
 
 type DefaultUserService struct {
-	repo *repository.DefaultUserRepository
+	repo repository.UserRepository
 }
 
 func (s *DefaultUserService) GetUserDetails(c *gin.Context, userId string) (*dto.UserResponse, *errors.ApiError) {
@@ -41,6 +41,6 @@ func (s *DefaultUserService) GetUserDetails(c *gin.Context, userId string) (*dto
 	}, nil
 }
 
-func NewUserService(repo *repository.DefaultUserRepository) *DefaultUserService {
+func NewUserService(repo repository.UserRepository) *DefaultUserService {
 	return &DefaultUserService{repo: repo}
 }

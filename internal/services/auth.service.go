@@ -13,6 +13,10 @@ import (
 	"time"
 )
 
+const TokenDuration = 1 * time.Hour
+
+var SecretKey = os.Getenv("JWT_SECRET")
+
 type AuthService interface {
 	CreateUser(c *gin.Context, user *dto.CreateUserRequest) (*dto.CreateUserResponse, *errors.ApiError)
 	Login(c *gin.Context, user *dto.LoginRequest) (*dto.LoginResponse, *errors.ApiError)
@@ -20,11 +24,11 @@ type AuthService interface {
 }
 
 type DefaultAuthService struct {
-	repo       *repository.DefaultUserRepository
+	repo       repository.UserRepository
 	orgService OrganizationService
 }
 
-func hashPassword(password string) (string, error) {
+func HashPassword(password string) (string, error) {
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		return "", err
@@ -53,7 +57,7 @@ func GenerateJWT(userId string) (string, error) {
 
 func (s *DefaultAuthService) CreateUser(c *gin.Context, user *dto.CreateUserRequest) (*dto.CreateUserResponse, *errors.ApiError) {
 	// Hash the user's password
-	hash, err := hashPassword(user.Password)
+	hash, err := HashPassword(user.Password)
 	if err != nil {
 		return nil, &errors.ApiError{
 			Status:     errors.InternalServerError,
@@ -72,9 +76,9 @@ func (s *DefaultAuthService) CreateUser(c *gin.Context, user *dto.CreateUserRequ
 	})
 	if dbErr != nil {
 		return nil, &errors.ApiError{
-			Status:     errors.InternalServerError,
+			Status:     errors.ValidationError,
 			Message:    "Registration unsuccessful",
-			StatusCode: http.StatusInternalServerError,
+			StatusCode: http.StatusUnauthorized,
 		}
 	}
 	// Generate a JWT token
@@ -172,6 +176,6 @@ func (s *DefaultAuthService) CreateUserAndOrganization(c *gin.Context, req *dto.
 	return resp, nil
 }
 
-func NewAuthService(repo *repository.DefaultUserRepository, orgService OrganizationService) AuthService {
+func NewAuthService(repo repository.UserRepository, orgService OrganizationService) AuthService {
 	return &DefaultAuthService{repo: repo, orgService: orgService}
 }

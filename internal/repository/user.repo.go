@@ -18,6 +18,9 @@ type DefaultUserRepository struct {
 }
 
 func (r *DefaultUserRepository) CreateUser(user *models.User) (*dto.UserResponse, error) {
+	if u := r.db.Where("email = ?", user.Email).First(&models.User{}); u.RowsAffected > 0 {
+		return &dto.UserResponse{}, gorm.ErrRecordNotFound
+	}
 	err := r.db.Create(&user).Error
 	if err != nil {
 		return &dto.UserResponse{}, err

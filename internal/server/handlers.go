@@ -71,6 +71,9 @@ func (s *Server) GetOrganizationsHandler(c *gin.Context) {
 		c.JSON(err.StatusCode, err)
 		return
 	}
+	if orgs == nil {
+		orgs = []*dto.GetOrganizationResponse{}
+	}
 	c.JSON(http.StatusOK, dto.ApiSuccessResponse{
 		Status:  "success",
 		Message: "Organizations retrieved successfully",
@@ -85,6 +88,18 @@ func (s *Server) GetOrganizationHandler(c *gin.Context) {
 	userID := c.GetString("userId")
 	// Get the organization ID from the URL parameters
 	orgId := c.Param("orgId")
+
+	// Check if the user is a member of the organization
+	isMember, err := s.OrganizationService.IsUserInOrganization(userID, orgId)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err)
+		return
+	}
+	if !isMember {
+		c.JSON(http.StatusForbidden, gin.H{"error": "You do not have access to this organization"})
+		return
+	}
+
 	org, err := s.OrganizationService.GetOrganizationById(userID, orgId)
 	if err != nil {
 		c.JSON(err.StatusCode, err)

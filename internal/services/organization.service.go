@@ -15,12 +15,25 @@ type OrganizationService interface {
 	GetOrganizationById(userId string, orgId string) (*dto.GetOrganizationResponse, *errors.ApiError)
 	CreateOrganization(userId string, req *dto.CreateOrganizationRequest) (*dto.GetOrganizationResponse, *errors.ApiError)
 	AddUserToOrganization(orgId string, userId string) *errors.ApiError
+	IsUserInOrganization(userId string, orgId string) (bool, *errors.ApiError)
 }
 
 type DefaultOrganizationService struct {
-	repo *repository.DefaultOrganizationRepository
+	repo repository.OrganizationRepository
 }
 
+func (s *DefaultOrganizationService) IsUserInOrganization(userId string, orgId string) (bool, *errors.ApiError) {
+	inOrg, err := s.repo.IsUserInOrganization(userId, orgId)
+	if err != nil {
+		return false, &errors.ApiError{
+			Message:    "Client Error",
+			StatusCode: http.StatusBadRequest,
+			Status:     errors.ValidationError,
+		}
+	}
+	return inOrg, nil
+
+}
 func (s *DefaultOrganizationService) CreateOrganizationByFirstName(name string, userId string) *errors.ApiError {
 
 	org := &models.Organization{
@@ -106,6 +119,6 @@ func (s *DefaultOrganizationService) AddUserToOrganization(orgId string, userId 
 	return nil
 }
 
-func NewOrganizationService(repo *repository.DefaultOrganizationRepository) *DefaultOrganizationService {
+func NewOrganizationService(repo repository.OrganizationRepository) *DefaultOrganizationService {
 	return &DefaultOrganizationService{repo: repo}
 }

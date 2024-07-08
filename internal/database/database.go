@@ -22,7 +22,6 @@ var (
 	username   = os.Getenv("DB_USERNAME")
 	port       = os.Getenv("DB_PORT")
 	host       = os.Getenv("DB_HOST")
-	xataApiKey = os.Getenv("XATA_API_KEY")
 	dbInstance *DbService
 )
 
