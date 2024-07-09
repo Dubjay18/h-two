@@ -33,5 +33,5 @@ type LoginResponse struct {
 		LastName  string `json:"lastName"`
 		Email     string `json:"email"`
 		Phone     string `json:"phone"`
-	}
+	} `json:"user"`
 }
