@@ -10,10 +10,12 @@ import (
 
 func (s *Server) RegisterHandler(c *gin.Context) {
 	var req *dto.CreateUserRequest
+
 	perr := helpers.ParseRequestBody(c, &req)
 	if perr != nil {
 		return
 	}
+
 	resp, err := s.AuthService.CreateUserAndOrganization(c, req)
 	if err != nil {
 		c.JSON(err.StatusCode, err)
