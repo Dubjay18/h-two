@@ -57,7 +57,7 @@ func (s *DefaultOrganizationService) GetUserOrganizations(userId string) ([]*dto
 	if err != nil {
 		return nil, &errors.ApiError{
 			Message:    "Failed to get organizations",
-			StatusCode: 500,
+			StatusCode: 400,
 			Status:     errors.InternalServerError,
 		}
 	}
@@ -96,9 +96,9 @@ func (s *DefaultOrganizationService) CreateOrganization(userId string, req *dto.
 	err := s.repo.CreateOrganization(org)
 	if err != nil {
 		return nil, &errors.ApiError{
-			Message:    "Failed to create organization",
-			StatusCode: 500,
-			Status:     errors.InternalServerError,
+			Message:    "Client error",
+			StatusCode: http.StatusBadRequest,
+			Status:     errors.ValidationError,
 		}
 	}
 	return &dto.GetOrganizationResponse{

@@ -115,7 +115,7 @@ func (s *DefaultAuthService) Login(c *gin.Context, user *dto.LoginRequest) (*dto
 		return nil, &errors.ApiError{
 			Status:     errors.ValidationError,
 			Message:    "Authentication Failed",
-			StatusCode: http.StatusInternalServerError,
+			StatusCode: http.StatusUnauthorized,
 		}
 	}
 	// Verify the user's password
