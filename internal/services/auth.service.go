@@ -61,7 +61,7 @@ func (s *DefaultAuthService) CreateUser(c *gin.Context, user *dto.CreateUserRequ
 	if u, _ := s.repo.GetUserByEmail(user.Email); u != nil {
 		return nil, &errors.ApiError{
 			Status:     errors.ValidationError,
-			Message:    "User already exists",
+			Message:    "Registration unsuccessful",
 			StatusCode: http.StatusUnprocessableEntity,
 		}
 
