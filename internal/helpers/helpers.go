@@ -3,6 +3,7 @@ package helpers
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+	"github.com/iancoleman/strcase"
 	"h-two/internal/errors"
 	"net/http"
 	"strings"
@@ -16,6 +17,7 @@ func ParseRequestBody(c *gin.Context, req interface{}) any {
 			for _, e := range validationErrs {
 				// Extract the field name and the error message
 				fieldName := strings.Split(e.Namespace(), ".")[1]
+				fieldName = strcase.ToLowerCamel(fieldName)
 				errorMessage := e.ActualTag()
 				// Translate each error one at a time
 				res = append(res, errors.FieldError{Field: fieldName, Message: errorMessage})
