@@ -58,7 +58,7 @@ func GenerateJWT(userId string) (string, error) {
 func (s *DefaultAuthService) CreateUser(c *gin.Context, user *dto.CreateUserRequest) (*dto.CreateUserResponse, *errors.ApiError) {
 	// Check if the user already exists
 
-	if u, _ := s.repo.GetUserByEmail(user.Email); u == nil {
+	if u, _ := s.repo.GetUserByEmail(user.Email); u != nil {
 		return nil, &errors.ApiError{
 			Status:     errors.ValidationError,
 			Message:    "User already exists",
