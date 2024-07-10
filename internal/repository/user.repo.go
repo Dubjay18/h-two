@@ -11,6 +11,8 @@ type UserRepository interface {
 	GetUserByEmail(email string) (*models.User, error)
 	GetUserById(userId string) (*models.User, error)
 	Begin() *gorm.DB
+	GetUserOrganization(id string) (*models.User, error)
+	AreUsersInSameOrganization(userId1 string, userId2 string) (bool, error)
 }
 
 type DefaultUserRepository struct {
@@ -54,6 +56,42 @@ func (r *DefaultUserRepository) GetUserById(userId string) (*models.User, error)
 
 }
 
+func (r *DefaultUserRepository) GetUserOrganization(id string) (*models.User, error) {
+	var user models.User
+	err := r.db.Where("user_id = ?", id).First(&user).Error
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
+}
+
+func (r *DefaultUserRepository) AreUsersInSameOrganization(userId1 string, userId2 string) (bool, error) {
+	var userOrgs1 []models.UserOrganization
+	var userOrgs2 []models.UserOrganization
+	err := r.db.Where("user_id = ?", userId1).Find(&userOrgs1).Error
+	if err != nil {
+		return false, err
+	}
+	err = r.db.Where("user_id = ?", userId2).Find(&userOrgs2).Error
+	if err != nil {
+		return false, err
+	}
+
+	// Create a map for faster lookup
+	orgs1 := make(map[string]bool)
+	for _, org := range userOrgs1 {
+		orgs1[org.OrgId] = true
+	}
+
+	// Check if any organization of user2 is also in user1's organizations
+	for _, org := range userOrgs2 {
+		if _, ok := orgs1[org.OrgId]; ok {
+			return true, nil
+		}
+	}
+
+	return false, nil
+}
 func (r *DefaultUserRepository) Begin() *gorm.DB {
 	return r.db.Begin()
 }

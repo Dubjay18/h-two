@@ -107,7 +107,7 @@ func (s *DefaultOrganizationService) CreateOrganization(userId string, req *dto.
 		Description: org.Description,
 	}, nil
 }
-func (s *DefaultOrganizationService) AddUserToOrganization(orgId string, userId string) *errors.ApiError {
+func (s *DefaultOrganizationService) AddUserToOrganization(userId string, orgId string) *errors.ApiError {
 	err := s.repo.AddUserToOrganization(orgId, userId)
 	if err != nil {
 		return &errors.ApiError{

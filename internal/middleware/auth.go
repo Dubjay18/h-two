@@ -6,6 +6,7 @@ import (
 	"h-two/internal/errors"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -19,6 +20,15 @@ func AuthMiddleware(c *gin.Context) {
 		})
 		return
 	}
+	if !strings.HasPrefix(tokenStr, "Bearer ") {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, errors.ApiError{
+			Message:    "Invalid Token",
+			StatusCode: http.StatusUnauthorized,
+			Status:     errors.UnAuthorized,
+		})
+		return
+	}
+	tokenStr = strings.TrimPrefix(tokenStr, "Bearer ")
 	secretKey := os.Getenv("JWT_SECRET")
 	if secretKey == "" {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, errors.ApiError{

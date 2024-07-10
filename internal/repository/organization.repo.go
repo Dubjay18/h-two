@@ -12,6 +12,7 @@ type OrganizationRepository interface {
 	GetOrganizationById(userId string, orgId string) (*models.Organization, error)
 	AddUserToOrganization(orgId string, userId string) error
 	IsUserInOrganization(userId string, orgId string) (bool, error)
+	AreUsersInSameOrganization(userId1 string, userId2 string) (bool, error)
 	Begin() *gorm.DB
 }
 
@@ -106,6 +107,17 @@ func (r *DefaultOrganizationRepository) AddUserToOrganization(orgId string, user
 	}
 
 	return nil
+}
+
+func (r *DefaultOrganizationRepository) AreUsersInSameOrganization(userId1 string, userId2 string) (bool, error) {
+	var userOrg1, userOrg2 models.UserOrganization
+	if err := r.db.Where("user_id = ?", userId1).First(&userOrg1).Error; err != nil {
+		return false, err
+	}
+	if err := r.db.Where("user_id = ?", userId2).First(&userOrg2).Error; err != nil {
+		return false, err
+	}
+	return userOrg1.OrgId == userOrg2.OrgId, nil
 }
 
 func (r *DefaultOrganizationRepository) Begin() *gorm.DB {
